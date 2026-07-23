@@ -1,0 +1,3 @@
+calebhomelist.duckdns.org {
+    reverse_proxy grocy:80
+}

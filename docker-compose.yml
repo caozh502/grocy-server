@@ -1,0 +1,19 @@
+version: "3"
+services:
+  grocy:
+    image: linuxserver/grocy
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ~/grocy-data:/config
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ~/Caddyfile:/etc/caddy/Caddyfile
+      - ~/caddy-data:/data
+    restart: unless-stopped

@@ -1,0 +1,11 @@
+# 环境变量（敏感信息，不要提交）
+.env
+
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 系统文件
+.DS_Store
+Thumbs.db
