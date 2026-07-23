@@ -16,5 +16,4 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/grocy-server && git pull
-            sudo systemctl restart grocy-bot
-            echo "✅ Deploy complete"
+            chmod +x deploy.sh && bash deploy.sh

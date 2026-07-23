@@ -1,5 +1,5 @@
-# 替换为你的 DuckDNS 域名
-# 例如: your-domain.duckdns.org
+# 模板文件 - deploy.sh 从 .env 读取 DOMAIN 自动生成
+# 不要直接修改，修改 .env 中的 DOMAIN 值
 your-domain.duckdns.org {
     reverse_proxy grocy:80
 }
