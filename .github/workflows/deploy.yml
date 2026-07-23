@@ -22,5 +22,4 @@ jobs:
             pkill -f grocy_bot.py 2>/dev/null || true
             sleep 1
             nohup python3 ~/grocy-server/grocy_bot.py > ~/grocy_bot.log 2>&1 &
-            cd ~ && docker compose pull && docker compose up -d
             echo "✅ Deploy complete"
