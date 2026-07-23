@@ -1,9 +1,8 @@
-import sqlite3, os, uuid, re
+import sqlite3, os, re, requests
 from datetime import date, datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-# 读取 .env
 def load_env():
     env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
     if os.path.exists(env_file):
@@ -18,7 +17,10 @@ load_env()
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 GROUP_ID = os.environ.get("GROUP_ID", "")
+API_URL = os.environ.get("API_URL", "http://127.0.0.1:8080/api")
+API_KEY = os.environ.get("API_KEY", "")
 DB = os.path.expanduser(os.environ.get("DB_PATH", "~/grocy-data/data/grocy.db"))
+HEADERS = {"GROCY-API-KEY": API_KEY, "Content-Type": "application/json"}
 
 HELP = """📋 *Grocy 命令列表*
 /help — 帮助  /check — 未来3天到期  /stock — 全部库存
@@ -31,7 +33,6 @@ def q(sql):
     c = conn.cursor()
     c.execute(sql)
     r = c.fetchall()
-    conn.commit()
     conn.close()
     return r
 
@@ -114,26 +115,30 @@ async def add(u, c):
     has_date = len(parts)>=2 and re.match(r"^\d{4}-\d{2}-\d{2}$", parts[1])
     due = parts[1] if has_date else None
     amt = float(parts[2]) if has_date and len(parts)>=3 else (float(parts[1]) if not has_date and len(parts)>=2 else 1.0)
-    today = date.today().isoformat()
-    sid = uuid.uuid4().hex[:13]
-    tid = uuid.uuid4().hex[:13]
     bbd = due if due else "2999-12-31"
+
     try:
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-        c.execute("SELECT id FROM products WHERE name=?", (name,))
-        r = c.fetchone()
-        if r:
-            pid = r[0]; newp=False
-        else:
-            c.execute("SELECT COALESCE(MAX(id),0)+1 FROM products")
-            pid = c.fetchone()[0]
-            c.execute("INSERT INTO products(id,name,qu_id_purchase,qu_id_stock,location_id) VALUES(?,?,3,3,2)", (pid,name))
-            newp=True
-        c.execute("INSERT INTO stock(product_id,amount,best_before_date,purchased_date,stock_id,open) VALUES(?,?,?,?,?,0)", (pid,amt,bbd,today,sid))
-        c.execute("INSERT INTO stock_log(product_id,amount,best_before_date,purchased_date,stock_id,transaction_type,price,undone,location_id,transaction_id,user_id) VALUES(?,?,?,?,?,'purchase',0,0,2,?,1)", (pid,amt,bbd,today,sid,tid))
-        conn.commit()
-        conn.close()
+        # 查产品是否存在
+        r = requests.get(f"{API_URL}/objects/products", headers=HEADERS, timeout=10)
+        r.raise_for_status()
+        products = r.json()
+        pid = None
+        for p in products:
+            if p["name"] == name:
+                pid = p["id"]
+                break
+        newp = False
+        if pid is None:
+            r2 = requests.post(f"{API_URL}/objects/products", json={"name": name}, headers=HEADERS, timeout=10)
+            r2.raise_for_status()
+            pid = r2.json()["created_object_id"]
+            newp = True
+
+        # API 添加库存
+        body = {"amount": amt, "best_before_date": bbd}
+        r3 = requests.post(f"{API_URL}/stock/products/{pid}/add", json=body, headers=HEADERS, timeout=10)
+        r3.raise_for_status()
+
         due_str = f"（到期 {due}）" if due else "（永不过期）"
         msg = f"✅ 已添加: {name} × {amt} {due_str}"
         if newp: msg = msg.replace("已添加","🆕 已添加（新建产品）")
