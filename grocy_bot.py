@@ -23,10 +23,16 @@ DB = os.path.expanduser(os.environ.get("DB_PATH", "~/grocy-data/data/grocy.db"))
 HEADERS = {"GROCY-API-KEY": API_KEY, "Content-Type": "application/json"}
 
 HELP = """📋 *Grocy 命令列表*
-/help — 帮助  /check — 未来3天到期  /stock — 全部库存
-/search <词> — 搜索  /expired — 已过期  /soon <N> — 未来N天
-/stats — 统计  /add <名称>,<到期日>,<数量>
-  到期日可省略  /add 盐, 1  /add 生抽,2026-08-10,2"""
+
+/help       帮助
+/check      未来3天到期食品
+/stock      当前全部库存
+/search     搜索食品（/search 牛奶）
+/expired    已过期食品
+/soon       未来N天到期（/soon 7）
+/stats      库存统计
+/add        添加物品（/add 生抽,2026-08-10,2）
+           到期日可省略，/add 盐, 1 为永不过期"""
 
 def q(sql):
     conn = sqlite3.connect(DB)
