@@ -6,6 +6,10 @@ __pycache__/
 *.pyc
 *.pyo
 
+# 临时文件
+*.hermes-tmp.*
+.hermes-tmp*/
+
 # 系统文件
 .DS_Store
 Thumbs.db

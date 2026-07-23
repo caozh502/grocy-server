@@ -1,0 +1,8 @@
+# Grocy Server 定时任务
+# 复制到 crontab: crontab crontab.example
+
+# 全量备份到 Google Drive（每天凌晨3:00）
+0 3 * * * /home/ubuntu/grocy-server/backup_grocy.sh >> /home/ubuntu/backup.log 2>&1
+
+# Telegram 到期提醒（每天早上8:00）
+0 8 * * * /home/ubuntu/grocy-server/grocy_reminder.sh

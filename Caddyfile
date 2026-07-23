@@ -1,3 +1,5 @@
-calebhomelist.duckdns.org {
+# 替换为你的 DuckDNS 域名
+# 例如: your-domain.duckdns.org
+your-domain.duckdns.org {
     reverse_proxy grocy:80
 }
