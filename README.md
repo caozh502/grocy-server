@@ -56,6 +56,9 @@ grocy-server/
 | 03:00 每天 | 全量备份到 Google Drive | `backup_grocy.sh` |
 | 08:00 每天 | Telegram 到期提醒 | `grocy_reminder.sh` |
 
+## 🔄 更新方式
+修改代码 → `git push` → GitHub Actions 自动部署到 VPS（~30秒）
+
 ## ⚡ 恢复步骤
 
 1. 新 VPS 安装 Docker + rclone + sqlite3
